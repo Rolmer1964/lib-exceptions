@@ -12,8 +12,10 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
 
@@ -71,10 +73,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(buildError(ex, request));
     }
 
-    //O recurso não foi encontrado (exemplo: json retornou vazio)
-    @ExceptionHandler(FeignException.FeignClientException.class)
-    public ResponseEntity<ErrorDetails> handleFeignException(HttpMessageNotReadableException ex, WebRequest request) {
-        return ResponseEntity.badRequest().body(buildError(ex, request));
+    @ExceptionHandler(FeignException.class)
+    public ResponseEntity<ErrorDetails> handleFeignException(FeignException ex, WebRequest request) {
+        return ResponseEntity
+                .status(ex.status() > 0 ? ex.status() : 502)
+                .body(buildFeignError(ex, request));
     }
 
     private ErrorDetails buildError(Exception ex, WebRequest request) {
@@ -151,5 +154,43 @@ public class GlobalExceptionHandler {
                 .path(request.getDescription(java.lang.Boolean.FALSE))
                 .build();
 
+    }
+
+
+    private ErrorDetails buildFeignError(FeignException ex, WebRequest request) {
+        String responseBody = ex.contentUTF8();
+        List<ErrorForm> errorFormList = new ArrayList<>();
+        String customMessage = "Erro ao consumir serviço remoto";
+
+        // Tenta extrair detalhes do corpo da resposta (assumindo JSON)
+        if (responseBody != null && !responseBody.isBlank()) {
+            // Exemplo: tenta mapear para ErrorDetails ou ErrorForm se a API remota seguir padrão semelhante
+            try {
+                ObjectMapper  mapper = new ObjectMapper();
+                // Tenta mapear para seu modelo de erro padrão
+                ErrorDetails remoteError = mapper.readValue(responseBody, ErrorDetails.class);
+                customMessage = remoteError.getMessage();
+                errorFormList = remoteError.getFields();
+            } catch (Exception e) {
+                // Se não conseguir mapear, adiciona o corpo como mensagem bruta
+                errorFormList.add(ErrorForm.builder()
+                        .field("feign.response")
+                        .message(responseBody)
+                        .build());
+            }
+        } else {
+            errorFormList.add(ErrorForm.builder()
+                    .field("feign.status")
+                    .message("Status: " + ex.status())
+                    .build());
+        }
+
+        return ErrorDetails.builder()
+                .timestamp(LocalDateTime.now())
+                .type(ex.getClass().getTypeName())
+                .message(customMessage)
+                .fields(errorFormList)
+                .path(request.getDescription(false))
+                .build();
     }
 }
