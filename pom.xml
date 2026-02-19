@@ -10,23 +10,16 @@
 	</parent>
 
 	<groupId>com.rolmer</groupId>
-	<artifactId>lib-exceptions</artifactId>
+	<artifactId>lib-trata-exceptions</artifactId>
 	<version>0.0.1</version>
-	<name>lib-exceptions</name>
+	<name>lib-trata-exceptions</name>
 	<description>Tratamento de exceptions padrão</description>
+	<packaging>jar</packaging>
 
 	<!-- Versões concentradas aqui, pra melhor visibilidade-->
 	<properties>
 		<java.version>17</java.version>
-		<aws.java.sdk.version>2.41.15</aws.java.sdk.version>
-		<lombok.version>1.18.42</lombok.version>
-		<mapstruct.version>1.6.3</mapstruct.version>
-		<lombok-mapstruct-binder.version>0.2.0</lombok-mapstruct-binder.version>
 		<maven-compiler-plugin.version>3.11.0</maven-compiler-plugin.version>
-		<junit-jupiter.version>6.0.3</junit-jupiter.version>
-		<mockito-core.version>5.2.0</mockito-core.version>
-		<spring-boot-starter-test.version>4.1.0-M1</spring-boot-starter-test.version>
-		<assertj-core.version>4.0.0-M1</assertj-core.version>
 	</properties>
 
 	<dependencies>
@@ -34,95 +27,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-webmvc</artifactId>
 		</dependency>
-
-		<!-- sem boiler plate -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-			<version>${lombok.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- mapearar padronizadamente -->
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct</artifactId>
-			<version>${mapstruct.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- Sem isso, o lombok e o mapstruct não conversam bem -->
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok-mapstruct-binding</artifactId>
-			<version>${lombok-mapstruct-binder.version}</version>
-			<scope>provided</scope>
-		</dependency>
-
-		<dependency>
-			<groupId>org.mapstruct</groupId>
-			<artifactId>mapstruct-processor</artifactId>
-			<version>${mapstruct.version}</version>
-			<scope>compile</scope>
-		</dependency>
-
-		<!-- persistencia dos dados -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.h2database</groupId>
-			<artifactId>h2</artifactId>
-			<scope>runtime</scope>
-		</dependency>
-
-		<!-- Spring Boot Test (inclui suporte ao JUnit e Mockito) -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<version>${spring-boot-starter-test.version}</version> <!-- Ou superior dentro da linha 3.4.x -->
-			<scope>test</scope>
-		</dependency>
-
-		<!-- Mitigando a vulnerabilidade encontrada no assertj que vem no spring-boot-starter-test  -->
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-core</artifactId>
-			<version>${assertj-core.version}</version>
-			<scope>test</scope>
-		</dependency>
-
-		<!-- versões do spring boot após 3.x, não incluem validator, então tive que incluir aqui  -->
-		<dependency>
-			<groupId>org.hibernate.validator</groupId>
-			<artifactId>hibernate-validator</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>io.github.openfeign</groupId>
-			<artifactId>feign-core</artifactId>
-			<version>12.5</version>
-		</dependency>
-
 	</dependencies>
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-maven-plugin</artifactId>
-				<configuration>
-					<excludes>
-						<exclude>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-						</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
